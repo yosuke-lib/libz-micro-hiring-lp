@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LIBZ — マイクロ採用（5名以下）に特化したマッチングサービス</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: #1a56e8;
+      --primary-dark: #1240b8;
+      --primary-light: #e8f0fe;
+      --accent: #f97316;
+      --accent-light: #fff7ed;
+      --green: #16a34a;
+      --green-light: #f0fdf4;
+      --red-light: #fff1f2;
+      --red: #e11d48;
+      --text: #111827;
+      --text-muted: #6b7280;
+      --text-light: #9ca3af;
+      --bg: #ffffff;
+      --bg-soft: #f9fafb;
+      --bg-dark: #0f172a;
+      --border: #e5e7eb;
+      --radius: 12px;
+      --shadow: 0 1px 3px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.06);
+      --shadow-lg: 0 8px 32px rgba(0,0,0,.12);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ━━━ NAV ━━━ */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255,255,255,.96);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 64px;
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .nav-logo img { height: 28px; }
+    .nav-logo-text {
+      font-size: 20px; font-weight: 900; color: var(--primary); letter-spacing: -.5px;
+    }
+    .nav-badge {
+      font-size: 10px; font-weight: 700; color: #fff;
+      background: var(--accent); padding: 3px 9px; border-radius: 20px; letter-spacing: .4px;
+    }
+    .nav-cta {
+      background: var(--primary); color: #fff; border: none; border-radius: 8px;
+      padding: 9px 20px; font-size: 14px; font-weight: 700; cursor: pointer;
+      text-decoration: none; transition: background .2s;
+    }
+    .nav-cta:hover { background: var(--primary-dark); }
+
+    /* ━━━ HERO ━━━ */
+    .hero {
+      background: var(--bg-dark);
+      padding: 0 40px;
+      min-height: 600px;
+      display: flex; align-items: center;
+      position: relative; overflow: hidden;
+    }
+    /* Background grid pattern */
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+      background-size: 48px 48px;
+    }
+    /* Glow blobs */
+    .hero::after {
+      content: '';
+      position: absolute; top: -120px; right: -80px;
+      width: 560px; height: 560px;
+      background: radial-gradient(circle, rgba(26,86,232,.22) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-inner {
+      max-width: 1100px; margin: 0 auto; width: 100%;
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 64px; align-items: center;
+      position: relative; z-index: 1;
+      padding: 88px 0;
+    }
+    .hero-left { }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12);
+      color: rgba(255,255,255,.75);
+      font-size: 12px; font-weight: 700; padding: 6px 16px; border-radius: 20px;
+      margin-bottom: 28px; letter-spacing: .4px;
+    }
+    .hero-badge::before {
+      content: ''; width: 7px; height: 7px;
+      background: #4ade80; border-radius: 50%;
+      box-shadow: 0 0 6px #4ade80;
+    }
+    .hero-title {
+      font-size: clamp(30px, 3.8vw, 52px); font-weight: 900; line-height: 1.18;
+      letter-spacing: -1.5px; color: #fff; margin-bottom: 22px;
+    }
+    .hero-title em { font-style: normal; color: #60a5fa; }
+    .hero-title .accent { font-style: normal; color: #fb923c; }
+    .hero-desc {
+      font-size: 16px; color: rgba(255,255,255,.55); line-height: 1.85; margin-bottom: 40px;
+    }
+    .hero-cta-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--primary); color: #fff; text-decoration: none;
+      padding: 15px 30px; border-radius: 10px; font-size: 16px; font-weight: 700;
+      transition: background .2s, transform .15s;
+      box-shadow: 0 4px 24px rgba(26,86,232,.45);
+    }
+    .btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); }
+    .hero-note { font-size: 13px; color: rgba(255,255,255,.35); }
+    .hero-for-whom {
+      display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+      margin-bottom: 24px;
+    }
+    .hero-for-whom-label {
+      font-size: 10px; font-weight: 700; letter-spacing: .1em;
+      color: rgba(255,255,255,.3); text-transform: uppercase;
+      margin-right: 2px;
+    }
+    .hero-for-whom-tag {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 11px; font-weight: 600;
+      padding: 5px 12px; border-radius: 20px;
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.12);
+      color: rgba(255,255,255,.7);
+    }
+    .hero-for-whom-tag .fw-icon { font-size: 12px; }
+
+    /* ── Hero right: stat cards grid ── */
+    .hero-right {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+    }
+    .hero-stat-card {
+      background: rgba(255,255,255,.055);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 14px; padding: 22px 20px;
+      transition: background .2s, border-color .2s;
+    }
+    .hero-stat-card:hover {
+      background: rgba(255,255,255,.09);
+      border-color: rgba(255,255,255,.18);
+    }
+    .hero-stat-card:first-child {
+      grid-column: 1 / -1;
+      display: flex; align-items: center; gap: 20px;
+      background: rgba(26,86,232,.2);
+      border-color: rgba(26,86,232,.4);
+    }
+    .hero-stat-icon { font-size: 26px; flex-shrink: 0; }
+    .hero-stat-num {
+      font-size: 36px; font-weight: 900; color: #fff;
+      line-height: 1; letter-spacing: -1px;
+    }
+    .hero-stat-num span { font-size: 18px; font-weight: 700; color: #93c5fd; }
+    .hero-stat-label {
+      font-size: 12px; color: rgba(255,255,255,.55); margin-top: 5px; line-height: 1.5;
+    }
+    .hero-stat-tag {
+      display: inline-block; font-size: 10px; font-weight: 700;
+      color: #60a5fa; background: rgba(96,165,250,.15);
+      padding: 2px 8px; border-radius: 10px; margin-top: 8px;
+    }
+
+    /* ── UI Mockup image section ── */
+    .mockup-section {
+      background: linear-gradient(180deg, var(--bg-dark) 0%, #0d1a2e 100%);
+      padding: 0 40px 80px;
+      text-align: center;
+    }
+    .mockup-inner {
+      max-width: 960px; margin: 0 auto;
+    }
+    .mockup-caption {
+      font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
+      color: rgba(255,255,255,.3); margin-bottom: 28px;
+    }
+    .mockup-img {
+      width: 100%; max-width: 860px;
+      height: auto; display: block; margin: 0 auto;
+      border-radius: 16px;
+      box-shadow: 0 24px 80px rgba(0,0,0,.45);
+      border: 1px solid rgba(255,255,255,.08);
+    }
+    @media (max-width: 768px) {
+      .mockup-section { padding: 0 16px 56px; }
+      .mockup-img { border-radius: 10px; }
+    }
+
+    /* ── How it works (flow) ── */
+    .how-section {
+      background: var(--bg-soft);
+      padding: 72px 32px;
+      border-bottom: 1px solid var(--border);
+    }
+    .how-inner { max-width: 900px; margin: 0 auto; }
+    .how-title {
+      text-align: center; font-size: 20px; font-weight: 800;
+      margin-bottom: 40px; letter-spacing: -.3px;
+    }
+    .how-steps {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; position: relative;
+    }
+    .how-steps::before {
+      content: ''; position: absolute; top: 28px; left: 12.5%; right: 12.5%;
+      height: 2px; background: linear-gradient(90deg, var(--primary-light), var(--primary), var(--primary-light));
+      z-index: 0;
+    }
+    .how-step {
+      display: flex; flex-direction: column; align-items: center;
+      text-align: center; padding: 0 12px; position: relative; z-index: 1;
+    }
+    .how-step-circle {
+      width: 56px; height: 56px; border-radius: 50%;
+      background: var(--primary); color: #fff;
+      font-size: 18px; font-weight: 900;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 16px; flex-shrink: 0;
+      box-shadow: 0 4px 16px rgba(26,86,232,.3);
+    }
+    .how-step-title { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+    .how-step-desc { font-size: 12px; color: var(--text-muted); line-height: 1.6; }
+    .how-chip {
+      display: inline-block; margin-top: 8px;
+      font-size: 10px; font-weight: 700; color: var(--primary);
+      background: var(--primary-light); padding: 2px 8px; border-radius: 10px;
+    }
+    @media (max-width: 640px) {
+      .how-steps { grid-template-columns: repeat(2, 1fr); gap: 28px; }
+      .how-steps::before { display: none; }
+    }
+
+    /* ━━━ SECTIONS ━━━ */
+    .section { padding: 96px 32px; }
+    .section-inner { max-width: 900px; margin: 0 auto; }
+    .section-inner-wide { max-width: 1080px; margin: 0 auto; }
+    .section-label {
+      display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase; color: var(--primary); background: var(--primary-light);
+      padding: 4px 12px; border-radius: 20px; margin-bottom: 16px;
+    }
+    .section-title {
+      font-size: clamp(26px, 3.5vw, 36px); font-weight: 800; line-height: 1.3;
+      letter-spacing: -.5px; margin-bottom: 14px;
+    }
+    .section-sub {
+      font-size: 16px; color: var(--text-muted); line-height: 1.8; margin-bottom: 52px;
+    }
+
+    /* ━━━ PROBLEM (dark) ━━━ */
+    .section-dark { background: var(--bg-dark); }
+    .section-dark .section-label { background: rgba(26,86,232,.25); color: #93c5fd; }
+    .section-dark .section-title { color: #fff; }
+    .section-dark .section-sub { color: rgba(255,255,255,.55); }
+
+    .problem-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 18px; }
+    .problem-card {
+      background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.09);
+      border-radius: var(--radius); padding: 28px;
+      transition: border-color .2s;
+    }
+    .problem-card:hover { border-color: rgba(255,255,255,.2); }
+    .problem-icon { font-size: 26px; margin-bottom: 12px; }
+    .problem-title { font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 8px; }
+    .problem-desc { font-size: 13px; color: rgba(255,255,255,.5); line-height: 1.75; }
+    .problem-sub-list { margin-top: 10px; padding-left: 16px; }
+    .problem-sub-list li { font-size: 12px; color: rgba(255,255,255,.38); margin-bottom: 5px; }
+
+    .void-box {
+      background: rgba(249,115,22,.07); border: 1px solid rgba(249,115,22,.22);
+      border-radius: var(--radius); padding: 32px; margin-top: 40px; text-align: center;
+    }
+    .void-box p { font-size: 16px; color: rgba(255,255,255,.7); line-height: 1.85; }
+    .void-box strong { color: #fb923c; }
+    .void-box .summary { font-size: 14px; color: rgba(255,255,255,.42); margin-top: 14px; line-height: 1.75; }
+
+    /* ━━━ SOLUTION BANNER ━━━ */
+    .solution-banner {
+      background: linear-gradient(135deg, var(--primary) 0%, #1240b8 100%);
+      border-radius: 20px; padding: 52px 56px;
+      text-align: center; position: relative; overflow: hidden; margin-bottom: 72px;
+    }
+    .solution-banner::before {
+      content: ''; position: absolute; top: -50%; right: -8%;
+      width: 480px; height: 480px;
+      background: rgba(255,255,255,.05); border-radius: 50%;
+    }
+    .solution-banner .badge {
+      display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 1.2px;
+      color: rgba(255,255,255,.65); background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.15);
+      padding: 5px 14px; border-radius: 20px; margin-bottom: 18px;
+    }
+    .solution-banner h3 {
+      font-size: clamp(22px, 3vw, 30px); font-weight: 800; color: #fff;
+      line-height: 1.45; margin-bottom: 14px;
+    }
+    .solution-banner h3 em { font-style: normal; color: #93c5fd; }
+    .solution-banner p { font-size: 15px; color: rgba(255,255,255,.65); line-height: 1.8; }
+
+    /* ━━━ FEATURES — REDESIGNED ━━━ */
+    /*
+      Layout: numbered list of feature blocks.
+      Each block = pill header (悩み) + two-col split (課題 / 解決策)
+    */
+    .features-list { display: flex; flex-direction: column; gap: 32px; }
+
+    .feature-block {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: box-shadow .2s;
+    }
+    .feature-block:hover { box-shadow: var(--shadow-lg); }
+
+    .feature-block-header {
+      display: flex; align-items: center; gap: 14px;
+      padding: 18px 28px;
+      background: var(--bg-soft);
+      border-bottom: 1px solid var(--border);
+    }
+    .feature-num-badge {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: var(--primary); color: #fff;
+      font-size: 16px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .feature-block-label {
+      font-size: 16px; font-weight: 700; color: var(--text);
+    }
+    .feature-block-label span {
+      font-size: 13px; font-weight: 500; color: var(--text-muted); margin-left: 8px;
+    }
+
+    .feature-block-body {
+      display: grid; grid-template-columns: 1fr 1fr;
+    }
+
+    .feature-problem {
+      padding: 28px 28px;
+      background: var(--red-light);
+      border-right: 1px solid #fecdd3;
+    }
+    .feature-solution {
+      padding: 28px 28px;
+      background: var(--green-light);
+    }
+
+    .feature-col-label {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 11px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .feature-col-label.problem { color: var(--red); }
+    .feature-col-label.solution { color: var(--green); }
+    .feature-col-label::before {
+      content: '';
+      width: 8px; height: 8px; border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .feature-col-label.problem::before { background: var(--red); }
+    .feature-col-label.solution::before { background: var(--green); }
+
+    .feature-col-title {
+      font-size: 15px; font-weight: 700; margin-bottom: 8px; line-height: 1.45;
+    }
+    .feature-problem .feature-col-title { color: #9f1239; }
+    .feature-solution .feature-col-title { color: #14532d; }
+
+    .feature-col-body {
+      font-size: 13px; line-height: 1.75;
+    }
+    .feature-problem .feature-col-body { color: #be123c; opacity: .85; }
+    .feature-solution .feature-col-body { color: #166534; opacity: .9; }
+
+    .feature-chip {
+      display: inline-block; font-size: 11px; font-weight: 700;
+      padding: 3px 10px; border-radius: 20px; margin-top: 12px;
+    }
+    .feature-chip.highlight {
+      background: var(--primary); color: #fff;
+    }
+    .feature-chip.tag {
+      background: var(--primary-light); color: var(--primary);
+    }
+
+    .feature-sub-list {
+      margin-top: 8px; padding-left: 16px;
+    }
+    .feature-sub-list li {
+      font-size: 12px; margin-bottom: 4px;
+    }
+    .feature-problem .feature-sub-list li { color: #be123c; opacity: .75; }
+    .feature-solution .feature-sub-list li { color: #166534; opacity: .85; }
+
+    /* ━━━ OPTIONS ━━━ */
+    .options-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .option-card {
+      background: #fff; border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 22px;
+      display: flex; flex-direction: column; gap: 8px;
+      transition: box-shadow .2s;
+    }
+    .option-card:hover { box-shadow: var(--shadow); }
+    .option-icon { font-size: 22px; }
+    .option-title { font-size: 13px; font-weight: 700; line-height: 1.5; }
+    .option-tag {
+      display: inline-block; font-size: 10px; font-weight: 600;
+      color: var(--text-light); background: var(--border);
+      padding: 2px 8px; border-radius: 10px; align-self: flex-start;
+    }
+
+    /* ━━━ STATS ━━━ */
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 56px; }
+    .stat-card {
+      background: #fff; border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 24px; text-align: center;
+    }
+    .stat-num { font-size: 36px; font-weight: 900; color: var(--primary); line-height: 1; }
+    .stat-unit { font-size: 15px; font-weight: 600; color: var(--text-muted); }
+    .stat-label { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+
+    /* ━━━ CTA ━━━ */
+    .cta-section { background: var(--bg-dark); text-align: center; }
+    .cta-section .section-label { background: rgba(26,86,232,.25); color: #93c5fd; }
+    .cta-title { font-size: clamp(26px, 3.5vw, 38px); font-weight: 800; color: #fff; margin: 20px 0 14px; }
+    .cta-desc { font-size: 16px; color: rgba(255,255,255,.5); margin-bottom: 40px; line-height: 1.8; }
+    .cta-box {
+      display: inline-block; background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.1); border-radius: 20px;
+      padding: 48px 56px; width: 100%; max-width: 580px;
+    }
+    .cta-chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 28px; }
+    .cta-chip {
+      font-size: 13px; font-weight: 600; color: #93c5fd;
+      background: rgba(26,86,232,.2); border: 1px solid rgba(26,86,232,.35);
+      padding: 5px 14px; border-radius: 20px;
+    }
+    .cta-box .btn-primary { font-size: 17px; padding: 16px 40px; width: 100%; justify-content: center; }
+    .cta-footer { margin-top: 18px; font-size: 13px; color: rgba(255,255,255,.28); }
+
+    footer {
+      background: #060d1a; padding: 32px 24px;
+      text-align: center; font-size: 12px; color: rgba(255,255,255,.2);
+    }
+    footer strong { color: rgba(255,255,255,.4); }
+
+    /* ━━━ RESPONSIVE ━━━ */
+    @media (max-width: 768px) {
+      .hero { padding: 0 20px; }
+      .hero-inner { grid-template-columns: 1fr; gap: 40px; padding: 64px 0; }
+      .hero-right { grid-template-columns: 1fr 1fr; }
+      .section { padding: 64px 16px; }
+      .feature-block-body { grid-template-columns: 1fr; }
+      .feature-problem { border-right: none; border-bottom: 1px solid #fecdd3; }
+      .solution-banner { padding: 36px 24px; }
+      .cta-box { padding: 32px 20px; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ━━━ NAV ━━━ -->
+<nav>
+  <div class="nav-logo">
+    <img src="https://career.prismy.jp/_nuxt/logo_libzcareer.B98eU8Ml.png" alt="LIBZ" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+    <span class="nav-logo-text" style="display:none">LIBZ</span>
+    <span class="nav-badge">MICRO HIRING</span>
+  </div>
+  <a href="#cta" class="nav-cta">無料で試す →</a>
+</nav>
+
+
+<!-- ━━━ HERO ━━━ -->
+<section class="hero">
+  <div class="hero-inner">
+    <!-- LEFT: headline + CTA -->
+    <div class="hero-left">
+      <div class="hero-badge">日本唯一 — マイクロ採用（5名以下）特化型マッチング</div>
+      <h1 class="hero-title">
+        採用数<em>5名以下</em>の<br>
+        <span class="accent">マイクロ採用</span>なら、<br>
+        LIBZ。
+      </h1>
+      <p class="hero-desc">
+        少人数採用は、実はもっとも難しいプロジェクト。<br>
+        エージェントにも広告にも頼れないその課題を、<br>
+        LIBZが専用設計で全部解決します。
+      </p>
+      <div class="hero-for-whom">
+        <span class="hero-for-whom-label">for →</span>
+        <span class="hero-for-whom-tag"><span class="fw-icon">🚀</span>アーリー〜シリーズBのスタートアップ</span>
+        <span class="hero-for-whom-tag"><span class="fw-icon">🏪</span>スモールビジネス事業者</span>
+        <span class="hero-for-whom-tag"><span class="fw-icon">🏢</span>子会社・支店・部署単位の採用</span>
+        <span class="hero-for-whom-tag"><span class="fw-icon">📍</span>地方企業の中途採用</span>
+      </div>
+      <div class="hero-cta-row">
+        <a href="#cta" class="btn-primary">今すぐ無料で試す →</a>
+        <span class="hero-note">契約不要・即日利用開始</span>
+      </div>
+    </div>
+
+    <!-- RIGHT: key stat cards -->
+    <div class="hero-right">
+
+      <!-- 返信率（全幅カード） -->
+      <div class="hero-stat-card">
+        <div class="hero-stat-icon">💬</div>
+        <div>
+          <div class="hero-stat-num">35<span>%超</span></div>
+          <div class="hero-stat-label">平均返信率 — 通常スカウトの数倍の返信率。全員が事前面談済みのアクティブ転職者のみ。</div>
+        </div>
+      </div>
+
+      <!-- 即日スタート -->
+      <div class="hero-stat-card">
+        <div class="hero-stat-icon">⚡</div>
+        <div class="hero-stat-num" style="font-size:28px">即日</div>
+        <div class="hero-stat-label">利用開始可能<br>商談・契約は不要</div>
+        <div class="hero-stat-tag">求人票も不要</div>
+      </div>
+
+      <!-- 推薦頻度 -->
+      <div class="hero-stat-card">
+        <div class="hero-stat-icon">📬</div>
+        <div class="hero-stat-num" style="font-size:28px">週1〜5<span style="font-size:15px">回</span></div>
+        <div class="hero-stat-label">毎週確実に推薦が届く<br>頻度は自由に設定可能</div>
+        <div class="hero-stat-tag">推薦ゼロの週はなし</div>
+      </div>
+
+      <!-- 1クリック -->
+      <div class="hero-stat-card">
+        <div class="hero-stat-icon">👆</div>
+        <div class="hero-stat-num" style="font-size:28px">1</div>
+        <div class="hero-stat-label">クリックで完結する<br>マッチングアプリ型運用</div>
+        <div class="hero-stat-tag">CxO採用にも対応</div>
+      </div>
+
+    </div><!-- /hero-right -->
+  </div>
+</section>
+
+<!-- ━━━ UI MOCKUP IMAGE ━━━ -->
+<section class="mockup-section">
+  <div class="mockup-inner">
+    <p class="mockup-caption">LIBZの採用管理画面 — PC・スマホに対応</p>
+    <img
+      src="./images/new-ui-mockup.png"
+      alt="LIBZの採用管理画面イメージ（PC・スマホ）"
+      class="mockup-img"
+      onerror="this.closest('.mockup-section').style.display='none'"
+    />
+  </div>
+</section>
+
+<!-- (以下は削除済みSVGの残骸 — 削除対象) -->
+      <svg style="display:none" viewBox="0 0 1 1" xmlns="http://www.w3.org/2000/svg">
+
+        <!-- ══════ LAPTOP ══════ -->
+        <!-- Lid shadow -->
+        <rect x="24" y="26" width="402" height="272" rx="14" fill="rgba(0,0,0,.12)"/>
+        <!-- Lid body -->
+        <rect x="20" y="22" width="402" height="272" rx="14" fill="#e2e2e2"/>
+        <rect x="20" y="22" width="402" height="272" rx="14" fill="none" stroke="#c4c4c4" stroke-width="1.2"/>
+        <!-- Apple logo area -->
+        <circle cx="221" cy="157" r="8" fill="rgba(0,0,0,.04)"/>
+        <!-- Bezel (dark) -->
+        <rect x="27" y="29" width="388" height="260" rx="10" fill="#1a1a1a"/>
+        <!-- Camera dot -->
+        <circle cx="221" cy="37" r="3.5" fill="#333"/>
+        <circle cx="221" cy="37" r="1.5" fill="#555"/>
+        <!-- Screen -->
+        <rect x="34" y="44" width="374" height="240" rx="4" fill="#f2f2f2"/>
+
+        <!-- ── Nav bar ── -->
+        <rect x="34" y="44" width="374" height="30" fill="#1e2340"/>
+        <!-- LIBZ Logo -->
+        <text x="48" y="63" font-size="11.5" font-weight="900" fill="#60a5fa" letter-spacing="-0.3">eLIBZ</text>
+        <!-- Nav items -->
+        <text x="108" y="62" font-size="7.5" fill="rgba(255,255,255,.6)">依頼一覧</text>
+        <text x="150" y="62" font-size="7.5" fill="#60a5fa" font-weight="700">新着逆求人</text>
+        <text x="200" y="62" font-size="7.5" fill="rgba(255,255,255,.6)">進捗</text>
+        <text x="222" y="62" font-size="7.5" fill="rgba(255,255,255,.6)">マイデータ</text>
+        <text x="270" y="62" font-size="7.5" fill="rgba(255,255,255,.6)">プロジェクト</text>
+        <text x="320" y="62" font-size="7.5" fill="rgba(255,255,255,.6)">企業情報</text>
+        <!-- User avatar -->
+        <circle cx="386" cy="59" r="10" fill="#4d9fff"/>
+        <circle cx="386" cy="55" r="4" fill="rgba(255,255,255,.5)"/>
+        <ellipse cx="386" cy="65" rx="7" ry="4" fill="rgba(255,255,255,.5)"/>
+
+        <!-- ── 新着逆求人 dark section ── -->
+        <rect x="34" y="74" width="374" height="78" fill="#2a2f4a"/>
+        <!-- Section title + search -->
+        <text x="170" y="91" font-size="10.5" font-weight="700" fill="white" text-anchor="middle">新着逆求人</text>
+        <!-- 対象者 -->
+        <rect x="265" y="82" width="90" height="14" rx="3" fill="rgba(255,255,255,.1)"/>
+        <text x="280" y="92" font-size="7" fill="rgba(255,255,255,.7)">対象者　山本次郎</text>
+
+        <!-- Candidate circles row -->
+        <!-- Arrow left -->
+        <text x="44" y="127" font-size="16" fill="rgba(255,255,255,.5)">‹</text>
+        <!-- Circle 1 pink -->
+        <circle cx="80" cy="118" r="20" fill="#e91e8c"/>
+        <circle cx="80" cy="111" r="8" fill="rgba(255,255,255,.35)"/>
+        <ellipse cx="80" cy="128" rx="12" ry="7" fill="rgba(255,255,255,.35)"/>
+        <text x="80" y="143" font-size="6" fill="rgba(255,255,255,.65)" text-anchor="middle">人材紹介</text>
+        <!-- Circle 2 blue + NEW -->
+        <circle cx="125" cy="118" r="20" fill="#2196f3"/>
+        <circle cx="125" cy="111" r="8" fill="rgba(255,255,255,.35)"/>
+        <ellipse cx="125" cy="128" rx="12" ry="7" fill="rgba(255,255,255,.35)"/>
+        <rect x="134" y="97" width="16" height="8" rx="4" fill="#f44336"/>
+        <text x="142" y="104" font-size="5" fill="white" text-anchor="middle">NEW</text>
+        <text x="125" y="143" font-size="6" fill="rgba(255,255,255,.65)" text-anchor="middle">人材紹介</text>
+        <!-- Circle 3 purple + NEW -->
+        <circle cx="170" cy="118" r="20" fill="#9c27b0"/>
+        <circle cx="170" cy="111" r="8" fill="rgba(255,255,255,.35)"/>
+        <ellipse cx="170" cy="128" rx="12" ry="7" fill="rgba(255,255,255,.35)"/>
+        <rect x="179" y="97" width="16" height="8" rx="4" fill="#f44336"/>
+        <text x="187" y="104" font-size="5" fill="white" text-anchor="middle">NEW</text>
+        <text x="170" y="143" font-size="6" fill="rgba(255,255,255,.65)" text-anchor="middle">人材紹介</text>
+        <!-- Circle 4 red -->
+        <circle cx="215" cy="118" r="20" fill="#e53935"/>
+        <circle cx="215" cy="111" r="8" fill="rgba(255,255,255,.35)"/>
+        <ellipse cx="215" cy="128" rx="12" ry="7" fill="rgba(255,255,255,.35)"/>
+        <text x="215" y="143" font-size="6" fill="rgba(255,255,255,.65)" text-anchor="middle">人材紹介</text>
+        <!-- Circle 5 orange-red -->
+        <circle cx="260" cy="118" r="20" fill="#e64a19"/>
+        <circle cx="260" cy="111" r="8" fill="rgba(255,255,255,.35)"/>
+        <ellipse cx="260" cy="128" rx="12" ry="7" fill="rgba(255,255,255,.35)"/>
+        <text x="260" y="143" font-size="6" fill="rgba(255,255,255,.65)" text-anchor="middle">人材紹介</text>
+        <!-- Circle 6 green -->
+        <circle cx="305" cy="118" r="20" fill="#2e7d32"/>
+        <circle cx="305" cy="111" r="8" fill="rgba(255,255,255,.35)"/>
+        <ellipse cx="305" cy="128" rx="12" ry="7" fill="rgba(255,255,255,.35)"/>
+        <text x="305" y="143" font-size="6" fill="rgba(255,255,255,.65)" text-anchor="middle">人材紹介</text>
+        <!-- Arrow right -->
+        <text x="340" y="127" font-size="16" fill="rgba(255,255,255,.5)">›</text>
+
+        <!-- ── White candidate card ── -->
+        <rect x="34" y="152" width="374" height="132" fill="white"/>
+        <!-- Proposal label -->
+        <rect x="42" y="158" width="210" height="13" rx="2" fill="none" stroke="#d1d5db" stroke-width="0.8"/>
+        <text x="47" y="168" font-size="6.5" fill="#6b7280">「マーケティング系リーダークラス」の採用ニーズに対するご提案です</text>
+        <!-- Count -->
+        <text x="370" y="168" font-size="7" fill="#9ca3af" text-anchor="end">1 / 2 件</text>
+
+        <!-- Orange avatar -->
+        <rect x="42" y="174" width="50" height="62" rx="5" fill="#f59e0b"/>
+        <circle cx="67" cy="190" r="13" fill="#d97706"/>
+        <ellipse cx="67" cy="214" rx="19" ry="11" fill="#d97706"/>
+        <!-- 人材紹介 badge under avatar -->
+        <rect x="42" y="236" width="50" height="10" rx="2" fill="#1e2340"/>
+        <text x="67" y="244" font-size="5.5" fill="white" text-anchor="middle">人材紹介</text>
+        <!-- Location -->
+        <text x="42" y="258" font-size="6.5" fill="#9ca3af">埼玉県 35歳</text>
+        <text x="42" y="268" font-size="5.5" fill="#d1d5db">ID: 123123123</text>
+
+        <!-- Candidate title -->
+        <text x="100" y="183" font-size="9.5" font-weight="700" fill="#111827">マーケティング系マネージャークラス</text>
+        <text x="100" y="196" font-size="9.5" font-weight="700" fill="#111827">事業・サービス企画系リーダークラス</text>
+        <text x="100" y="209" font-size="6.5" fill="#6b7280">●●を展開する現職にて、営業で年間個人最高売上を更新。その後マーケティング部</text>
+        <text x="100" y="219" font-size="6.5" fill="#6b7280">門の立ち上げを担い、BtoBマーケ責任者としてチームを統括。マーケ全体戦略/</text>
+        <text x="100" y="229" font-size="6.5" fill="#6b7280">Web広告/MA/販促を全て手掛け商談数増加（前年比150%）を実現...</text>
+
+        <!-- Action buttons -->
+        <rect x="255" y="178" width="140" height="26" rx="5" fill="#1a56e8"/>
+        <text x="325" y="195" font-size="9" font-weight="700" fill="white" text-anchor="middle">立候補する</text>
+        <!-- 1人が立候補中 -->
+        <text x="325" y="212" font-size="7" fill="#e53935" text-anchor="middle">1人が立候補中</text>
+        <text x="325" y="220" font-size="6" fill="#e53935" text-anchor="middle">立候補期限 8/27</text>
+        <rect x="255" y="224" width="140" height="20" rx="5" fill="none" stroke="#d1d5db" stroke-width="1"/>
+        <text x="325" y="238" font-size="8" fill="#374151" text-anchor="middle">惜しい</text>
+        <rect x="255" y="249" width="140" height="20" rx="5" fill="none" stroke="#d1d5db" stroke-width="1"/>
+        <text x="325" y="263" font-size="8" fill="#374151" text-anchor="middle">違う</text>
+
+        <!-- Required conditions -->
+        <text x="255" y="277" font-size="6.5" font-weight="700" fill="#e53935">立候補の必須条件</text>
+        <text x="255" y="287" font-size="6.5" fill="#374151">¥ 700万円以上</text>
+        <text x="255" y="296" font-size="6.5" fill="#374151">📍 東京、神奈川勤務</text>
+
+        <!-- 職歴 section -->
+        <text x="42" y="280" font-size="8" font-weight="700" fill="#111827">職歴</text>
+        <!-- Timeline bar -->
+        <rect x="42" y="286" width="200" height="28" rx="2" fill="#f9fafb" stroke="#e5e7eb" stroke-width="0.5"/>
+        <!-- Year labels -->
+        <text x="44" y="296" font-size="5" fill="#9ca3af">2010</text>
+        <text x="68" y="296" font-size="5" fill="#9ca3af">2014</text>
+        <text x="92" y="296" font-size="5" fill="#9ca3af">2018</text>
+        <text x="116" y="296" font-size="5" fill="#9ca3af">2022</text>
+        <text x="140" y="296" font-size="5" fill="#9ca3af">2024</text>
+        <!-- Job bars -->
+        <rect x="50" y="301" width="60" height="5" rx="2" fill="#3b82f6"/>
+        <text x="52" y="307" font-size="4.5" fill="white">株式会社XXXX</text>
+        <rect x="80" y="308" width="90" height="5" rx="2" fill="#60a5fa"/>
+        <text x="82" y="314" font-size="4.5" fill="white">株式会社▲▲▲▲</text>
+
+        <!-- ══ Laptop base ══ -->
+        <rect x="16" y="292" width="410" height="16" rx="5" fill="#d4d4d4"/>
+        <rect x="0" y="305" width="442" height="8" rx="4" fill="#c0c0c0"/>
+        <rect x="160" y="304" width="122" height="3" rx="1.5" fill="#b0b0b0"/>
+
+        <!-- ══════ SMARTPHONE ══════ -->
+        <!-- Phone shadow -->
+        <rect x="422" y="158" width="138" height="248" rx="24" fill="rgba(0,0,0,.15)"/>
+        <!-- Phone body -->
+        <rect x="418" y="154" width="138" height="248" rx="24" fill="#111"/>
+        <rect x="418" y="154" width="138" height="248" rx="24" fill="none" stroke="#2a2a2a" stroke-width="1.5"/>
+        <!-- Screen area -->
+        <rect x="425" y="165" width="124" height="230" rx="18" fill="#f5f5f5"/>
+        <!-- Dynamic island -->
+        <rect x="458" y="169" width="58" height="12" rx="6" fill="#111"/>
+
+        <!-- Phone Nav -->
+        <rect x="425" y="165" width="124" height="24" rx="0" fill="#1e2340"/>
+        <rect x="425" y="165" width="124" height="8" rx="8" fill="#1e2340"/>
+        <!-- LIBZ logo -->
+        <text x="433" y="181" font-size="9" font-weight="900" fill="#60a5fa" letter-spacing="-0.3">eLIBZ</text>
+        <!-- Hamburger -->
+        <line x1="528" y1="174" x2="540" y2="174" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="528" y1="179" x2="540" y2="179" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="528" y1="184" x2="540" y2="184" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+
+        <!-- Phone 新着逆求人 header -->
+        <rect x="425" y="189" width="124" height="58" fill="#2a2f4a"/>
+        <text x="487" y="203" font-size="8.5" font-weight="700" fill="white" text-anchor="middle">新着逆求人</text>
+
+        <!-- Phone circles -->
+        <circle cx="444" cy="226" r="15" fill="#2196f3"/>
+        <circle cx="444" cy="220" r="6" fill="rgba(255,255,255,.35)"/>
+        <ellipse cx="444" cy="233" rx="9" ry="5.5" fill="rgba(255,255,255,.35)"/>
+
+        <circle cx="474" cy="226" r="15" fill="#e91e8c"/>
+        <circle cx="474" cy="220" r="6" fill="rgba(255,255,255,.35)"/>
+        <ellipse cx="474" cy="233" rx="9" ry="5.5" fill="rgba(255,255,255,.35)"/>
+        <rect x="482" y="210" width="12" height="7" rx="3.5" fill="#f44336"/>
+        <text x="488" y="216" font-size="4.5" fill="white" text-anchor="middle">NEW</text>
+
+        <circle cx="504" cy="226" r="15" fill="#9c27b0"/>
+        <circle cx="504" cy="220" r="6" fill="rgba(255,255,255,.35)"/>
+        <ellipse cx="504" cy="233" rx="9" ry="5.5" fill="rgba(255,255,255,.35)"/>
+
+        <!-- Phone white content -->
+        <rect x="425" y="247" width="124" height="148" fill="white"/>
+
+        <!-- Proposal tag -->
+        <text x="430" y="259" font-size="5.5" fill="#6b7280">「マーケティング系リーダークラス」の採用</text>
+        <text x="430" y="267" font-size="5.5" fill="#6b7280">ニーズに対するご提案です ✏️</text>
+        <text x="536" y="259" font-size="6" fill="#9ca3af" text-anchor="end">1 / 3件</text>
+
+        <!-- Phone conditions box -->
+        <rect x="430" y="271" width="112" height="42" rx="4" fill="#fff5f5"/>
+        <text x="436" y="282" font-size="6" font-weight="700" fill="#e53935">立候補の必須条件</text>
+        <text x="436" y="292" font-size="5.5" fill="#374151">¥ 700万円以上</text>
+        <text x="436" y="301" font-size="5.5" fill="#374151">📍 東京、神奈川勤務</text>
+        <text x="436" y="310" font-size="5.5" fill="#374151">こだわりなし</text>
+
+        <!-- Phone candidate mini card -->
+        <rect x="430" y="317" width="112" height="68" rx="4" fill="#f9fafb" stroke="#e5e7eb" stroke-width="0.5"/>
+        <!-- Avatar small -->
+        <rect x="435" y="322" width="22" height="26" rx="3" fill="#f59e0b"/>
+        <circle cx="446" cy="329" r="6" fill="#d97706"/>
+        <ellipse cx="446" cy="339" rx="9" ry="5" fill="#d97706"/>
+        <rect x="435" y="348" width="22" height="8" rx="1.5" fill="#1e2340"/>
+        <text x="446" y="354" font-size="4" fill="white" text-anchor="middle">人材紹介</text>
+        <!-- Info -->
+        <text x="462" y="328" font-size="5.5" font-weight="700" fill="#111">神奈川県 39歳</text>
+        <text x="462" y="336" font-size="5" fill="#d1d5db">ID: 123123123</text>
+        <text x="462" y="345" font-size="5.5" font-weight="700" fill="#111">マーケティング系マネージャークラス</text>
+        <text x="462" y="353" font-size="5.5" font-weight="700" fill="#111">事業・サービス企画系リーダークラス</text>
+        <text x="462" y="361" font-size="5" fill="#6b7280">頑し会議室を展開する現職にて、営業で年間</text>
+        <text x="462" y="369" font-size="5" fill="#6b7280">個人売上ギネスを更新。その後マーケ...</text>
+        <text x="462" y="377" font-size="5" fill="#6b7280">ティング部門の立ち上げを担い、現在は</text>
+
+<!-- ━━━ HOW IT WORKS ━━━ -->
+<section class="how-section">
+  <div class="how-inner">
+    <div class="how-title">LIBZマイクロ採用 — 4ステップで完結</div>
+    <div class="how-steps">
+      <div class="how-step">
+        <div class="how-step-circle">1</div>
+        <div class="how-step-title">採用ニーズを登録</div>
+        <div class="how-step-desc">求人票不要。設問に答えるだけで候補者像を設定。</div>
+        <span class="how-chip">即日設定</span>
+      </div>
+      <div class="how-step">
+        <div class="how-step-circle">2</div>
+        <div class="how-step-title">毎週AIが候補者を推薦</div>
+        <div class="how-step-desc">アクティブ転職者のみ。週1〜5回、必ず推薦が届く。</div>
+        <span class="how-chip">毎週確実</span>
+      </div>
+      <div class="how-step">
+        <div class="how-step-circle">3</div>
+        <div class="how-step-title">「会いたい」を1クリック</div>
+        <div class="how-step-desc">気になる候補者にワンクリックでアプローチ。</div>
+        <span class="how-chip">返信率35%超</span>
+      </div>
+      <div class="how-step">
+        <div class="how-step-circle">4</div>
+        <div class="how-step-title">相互理解面談 → 採用へ</div>
+        <div class="how-step-desc">想いを伝える場を経て、ミスマッチなく採用。</div>
+        <span class="how-chip">ミスマッチ防止</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ━━━ PROBLEM ━━━ -->
+<section class="section section-dark" id="problem">
+  <div class="section-inner">
+    <div class="section-label">Problem</div>
+    <h2 class="section-title">5名以下の採用は、<br>なぜこんなにも難しいのか。</h2>
+    <p class="section-sub">
+      マイクロ採用は「小規模だから楽」ではありません。<br>
+      あらゆる採用手段が機能しない、最難関プロジェクトです。
+    </p>
+
+    <div class="problem-grid">
+      <div class="problem-card">
+        <div class="problem-icon">🏢</div>
+        <div class="problem-title">エージェントから<br>相手にされない</div>
+        <div class="problem-desc">依頼しても推薦がこない。来ても大口顧客に回せなかった二軍候補者ばかり。</div>
+        <ul class="problem-sub-list">
+          <li>ほとんどのケースで推薦ゼロ</li>
+          <li>推薦されても二軍候補者ばかり</li>
+          <li>高い成果報酬を上げるしか手がない</li>
+        </ul>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-icon">📰</div>
+        <div class="problem-title">求人広告は<br>コストが見合わない</div>
+        <div class="problem-desc">採用予定5名以下に対して固定費のかかる求人広告を出すのは費用対効果が合わない。</div>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-icon">🔍</div>
+        <div class="problem-title">ダイレクトスカウトは<br>手間とコストが重い</div>
+        <div class="problem-desc">ツール利用費と運用工数を合わせると、5名以下の採用では投資対効果が合わない。</div>
+      </div>
+    </div>
+
+    <div class="void-box">
+      <p>選択肢として残るのは、<strong>コストを抑えた運用型採用広告</strong>か、<strong>いつ来るかわからない自社応募&amp;リファラル頼み</strong>。<br>結果として、<strong>いつまで経っても採用が進まない…</strong></p>
+      <p class="summary">多くの採用支援事業者から見ると、5名以下のマイクロ採用は労力の割に旨みが少なく、<strong style="color:#fb923c">放置されている状況</strong>なんです。</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ━━━ SOLUTION ━━━ -->
+<section class="section" id="solution">
+  <div class="section-inner">
+    <div class="section-label">Solution</div>
+    <h2 class="section-title">LIBZは日本で唯一、<br>マイクロ採用（5名以下）に<br>特化したマッチングサービスです。</h2>
+    <p class="section-sub">
+      マイクロ採用に頻出するすべてのお悩みに対して、<br>最適化されたソリューションが揃っています。
+    </p>
+
+    <div class="solution-banner">
+      <div class="badge">LIBZ MICRO HIRING — 6つの解決策</div>
+      <h3><em>5名以下のマイクロ採用、</em><br>LIBZがすべてのお悩みを解決します。</h3>
+      <p>エージェント・広告・スカウトが機能しない小規模採用領域で、<br>LIBZだけが専用設計のソリューションを提供しています。</p>
+    </div>
+
+    <!-- ── FEATURES REDESIGN: お悩み → 解決策 対比レイアウト ── -->
+    <div class="features-list">
+
+      <!-- Feature 1 -->
+      <div class="feature-block">
+        <div class="feature-block-header">
+          <div class="feature-num-badge">1</div>
+          <div class="feature-block-label">
+            急いで採用したい！
+            <span>即時利用・即時推薦</span>
+          </div>
+        </div>
+        <div class="feature-block-body">
+          <div class="feature-problem">
+            <div class="feature-col-label problem">お悩み</div>
+            <div class="feature-col-title">エージェントに依頼しても、動き出すまでに時間がかかりすぎる</div>
+            <div class="feature-col-body">初回商談・契約締結・候補者サーチ…ようやく動き始めても推薦がこない。急いでいるのに何週間も待たされる。</div>
+          </div>
+          <div class="feature-solution">
+            <div class="feature-col-label solution">LIBZの解決策</div>
+            <div class="feature-col-title">アカウント発行後、即日利用・即日推薦スタート</div>
+            <div class="feature-col-body">商談も契約も不要。アカウント発行し初期設定を済ませれば、その日から即時利用・即時推薦を受け取れます。</div>
+            <span class="feature-chip highlight">契約不要・即日スタート</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feature 2 -->
+      <div class="feature-block">
+        <div class="feature-block-header">
+          <div class="feature-num-badge">2</div>
+          <div class="feature-block-label">
+            求人票がない（採用像が固まっていない）
+            <span>採用ニーズ設定機能</span>
+          </div>
+        </div>
+        <div class="feature-block-body">
+          <div class="feature-problem">
+            <div class="feature-col-label problem">お悩み</div>
+            <div class="feature-col-title">どんな人を採ればいいか決まっていない。求人票を書く時間もない</div>
+            <div class="feature-col-body">採用人数が少ないからこそ、「誰を採るか」が重要なのに、要件を言語化する余裕がない。</div>
+          </div>
+          <div class="feature-solution">
+            <div class="feature-col-label solution">LIBZの解決策</div>
+            <div class="feature-col-title">簡単な設問に数タップ答えるだけで候補者像が完成</div>
+            <div class="feature-col-body">求人票不要。設問に答えるだけで採用すべき経験・思考性を持つ候補者像が自動で設定され、すぐに最適な推薦が届きます。</div>
+            <span class="feature-chip highlight">求人票不要・数タップで設定完了</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feature 3 -->
+      <div class="feature-block">
+        <div class="feature-block-header">
+          <div class="feature-num-badge">3</div>
+          <div class="feature-block-label">
+            契約したのに推薦が来ない！
+            <span>毎週確実推薦</span>
+          </div>
+        </div>
+        <div class="feature-block-body">
+          <div class="feature-problem">
+            <div class="feature-col-label problem">お悩み</div>
+            <div class="feature-col-title">エージェントと契約しても、推薦がなかなか来ない</div>
+            <div class="feature-col-body">「今は適した候補者がいません」と言われ続け、数ヶ月が経過。費用だけかかって採用が一向に進まない。</div>
+          </div>
+          <div class="feature-solution">
+            <div class="feature-col-label solution">LIBZの解決策</div>
+            <div class="feature-col-title">週1〜5回、毎週必ず推薦が届く</div>
+            <div class="feature-col-body">LIBZからは毎週必ず推薦が届きます。受け取る頻度は週1〜5回まで自由に設定できるので、採用ペースに合わせた運用が可能です。</div>
+            <span class="feature-chip highlight">週1〜5回 頻度自由設定</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feature 4 -->
+      <div class="feature-block">
+        <div class="feature-block-header">
+          <div class="feature-num-badge">4</div>
+          <div class="feature-block-label">
+            忙しくて採用に手間をかけられない
+            <span>1クリック運用・返信率35%超</span>
+          </div>
+        </div>
+        <div class="feature-block-body">
+          <div class="feature-problem">
+            <div class="feature-col-label problem">お悩み</div>
+            <div class="feature-col-title">スカウトツールを使っても、返信がほとんど来ない。運用工数だけがかかる</div>
+            <div class="feature-col-body">大量にスカウトを送っても返信率は数%。毎日の文面作成・送信・追跡作業に追われ、本業に支障が出ている。</div>
+          </div>
+          <div class="feature-solution">
+            <div class="feature-col-label solution">LIBZの解決策</div>
+            <div class="feature-col-title">「会いたい」ボタンを1クリックするだけ。返信率は35%超</div>
+            <div class="feature-col-body">登録候補者は全員、コンサルタントが事前面談し採用意欲を確認済みのアクティブ層のみ。運用はマッチングアプリスタイルで1クリックだけです。</div>
+            <ul class="feature-sub-list">
+              <li>事前面談済みのアクティブ転職者だけを掲載</li>
+              <li>スカウト文面の作成・大量送信が不要</li>
+            </ul>
+            <span class="feature-chip highlight">返信率 35% 超</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feature 5 -->
+      <div class="feature-block">
+        <div class="feature-block-header">
+          <div class="feature-num-badge">5</div>
+          <div class="feature-block-label">
+            知名度がないから応募してもらえない
+            <span>逆求人型 &amp; 相互理解面談</span>
+          </div>
+        </div>
+        <div class="feature-block-body">
+          <div class="feature-problem">
+            <div class="feature-col-label problem">お悩み</div>
+            <div class="feature-col-title">大企業・有名企業と同じ土俵で戦うと、知名度・ブランドで負けてしまう</div>
+            <div class="feature-col-body">求人広告や一般スカウトは、企業の認知度が低いと応募や返信が来ない。知名度のある企業に有力候補が流れてしまう。</div>
+          </div>
+          <div class="feature-solution">
+            <div class="feature-col-label solution">LIBZの解決策</div>
+            <div class="feature-col-title">候補者の希望条件が起点の「逆求人型」。ブランドでなく想いで勝てる</div>
+            <div class="feature-col-body">LIBZの推薦には候補者の希望条件（ポジション・年収・働き方など）が全て記載された逆求人型。マッチング後は相互理解面談を経て、採用への想いを直接伝えられます。</div>
+            <ul class="feature-sub-list">
+              <li>候補者の希望を満たす努力で、どんな会社でも勝率UP</li>
+              <li>「思いの強さ」で知名度の壁を越えられる</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feature 6 -->
+      <div class="feature-block">
+        <div class="feature-block-header">
+          <div class="feature-num-badge">6</div>
+          <div class="feature-block-label">
+            CxO・幹部をピンポイントで採用したい
+            <span>AIピンポイントマッチング</span>
+          </div>
+        </div>
+        <div class="feature-block-body">
+          <div class="feature-problem">
+            <div class="feature-col-label problem">お悩み</div>
+            <div class="feature-col-title">CxOや幹部候補は市場に少なく、通常の採用手法ではなかなか出会えない</div>
+            <div class="feature-col-body">エージェントにCxO採用を依頼しても後回しにされがち。ハイクラス人材との接点を作る手段が限られている。</div>
+          </div>
+          <div class="feature-solution">
+            <div class="feature-col-label solution">LIBZの解決策</div>
+            <div class="feature-col-title">AIが採用ニーズとマッチした候補者だけをピンポイントで推薦</div>
+            <div class="feature-col-body">登録した採用ニーズにAIがマッチング判定し、CxOなど市場では滅多に出会えないハイクラス候補者だけをピンポイントで推薦します。</div>
+            <span class="feature-chip highlight">CxO・幹部採用にも対応</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ━━━ OPTIONS ━━━ -->
+<section class="section" style="background: var(--bg-soft); padding-top: 80px;">
+  <div class="section-inner">
+    <div class="section-label">Options</div>
+    <h2 class="section-title">マイクロ採用企業に嬉しい<br>オプション機能も充実</h2>
+    <p class="section-sub">採用の準備から定着まで、LIBZがすべてのフェーズをカバーします。</p>
+
+    <div class="options-grid">
+      <div class="option-card">
+        <div class="option-icon">📂</div>
+        <div class="option-title">エントリーモデルATS機能</div>
+        <div class="option-tag">採用管理</div>
+      </div>
+      <div class="option-card">
+        <div class="option-icon">📝</div>
+        <div class="option-title">オファーレター自動生成機能</div>
+        <div class="option-tag">自動化</div>
+      </div>
+      <div class="option-card">
+        <div class="option-icon">📣</div>
+        <div class="option-title">リファラル・自社応募を増やす採用広報機能</div>
+        <div class="option-tag">採用広報</div>
+      </div>
+      <div class="option-card">
+        <div class="option-icon">🔔</div>
+        <div class="option-title">早期離職を防ぐオンボーディングミスマッチ検知</div>
+        <div class="option-tag">定着支援</div>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-num">35<span class="stat-unit">%</span></div>
+        <div class="stat-label">平均返信率（業界平均の数倍）</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">0<span class="stat-unit">円</span></div>
+        <div class="stat-label">初期費用・契約費</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">週<span class="stat-unit">1〜5</span></div>
+        <div class="stat-label">推薦受け取り頻度（自由設定）</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">即日</div>
+        <div class="stat-label">利用開始・推薦受け取り</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ━━━ CTA ━━━ -->
+<section class="section cta-section" id="cta">
+  <div class="section-inner" style="text-align: center;">
+    <div class="section-label">Get Started</div>
+    <h2 class="cta-title">5名以下のマイクロ採用、<br>LIBZで始めましょう。</h2>
+    <p class="cta-desc">
+      契約不要・即日利用開始。<br>まず採用ニーズを登録するところから始めましょう。
+    </p>
+    <div style="display: flex; justify-content: center;">
+      <div class="cta-box">
+        <div class="cta-chips">
+          <span class="cta-chip">✓ 求人票不要</span>
+          <span class="cta-chip">✓ 即日推薦</span>
+          <span class="cta-chip">✓ 1クリック運用</span>
+          <span class="cta-chip">✓ 返信率35%超</span>
+        </div>
+        <a href="#" class="btn-primary">採用ニーズを登録してはじめる →</a>
+        <p class="cta-footer">無料ではじめられます。面倒な商談・契約は不要です。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ━━━ FOOTER ━━━ -->
+<footer>
+  <p><strong>LIBZ</strong> &nbsp;—&nbsp; 日本唯一のマイクロ採用特化型マッチングサービス</p>
+  <p style="margin-top: 8px;">© 2026 LiB, Inc. All rights reserved.</p>
+</footer>
+
+</body>
+</html>
